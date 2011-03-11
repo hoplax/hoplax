@@ -1,0 +1,10 @@
+rocks:
+ - us :-)
+ - mass editing of bookmarks/tags/urls in an editor
+ - keyword bookmarks with autocomplete and multiple fields
+
+sucks:
+ - binary (sql!) bookmarks
+ - oneliner javascript keyword bookmarks to split multiple params
+ - bookmark synchronization (between different vendors?)
+ - firefox/chrome profiles (e.g. multi machine)

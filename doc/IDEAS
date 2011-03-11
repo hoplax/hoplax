@@ -1,0 +1,27 @@
+Ctrl+Enter should mean to jump immediately with the current settings
+   (wo further autocompletion)
+
+The current target URL should always be visible.
+
+Area under logo where you can conveniently paste URLs into.
+
+Autocomplete
+	extra label
+
+History management
+	university way: express state explicitly so it can be saved/restored
+	easy way (will this work?):
+	     - every widget appends it state (name=value,selbegin,selend) to the url when
+	        - losing focus
+		- no user input for 100ms
+		- jumping to URL
+	     - restore time we just synthesize user input from the URL
+	     - when autocomplete extra label gets implemented, we
+               should remember and restore both values (selected,
+               autocompleted)
+
+	either way, we will need access to text selection in
+	inputboxes (tested with firefox and chrome):
+	       $("#user")[0].selectionStart
+	       $("#user")[0].selectionEnd
+	       $("#user")[0].setSelectionRange(1, 10)
