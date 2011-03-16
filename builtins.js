@@ -29,12 +29,31 @@ mapsSlinglet.handlerFn = function(searchstring) {
 };
 
 mapsSlinglet.fieldCreater = function() {
-  return new Completer('mapssearch', 'Search Google Maps', '50%',
+  return new Completer('mapssearch', 'Location', '50%',
                        function() { return hoplax.autocompletes.maps; },
                        ['Countries'], ['n']);
 };
 
 mapsSlinglet.dependencies = 'lib/mapsdb.js';
+
+////////////////////////////////////////////////////////////////////////////////
+// JavaScript reference
+hoplax.autocompletes.mdc = hoplax.autocompletes.mdc || [];
+
+var mdcSlinglet = new Slinglet();
+
+mdcSlinglet.handlerFn = function(url) {
+  window.location = url;
+};
+
+mdcSlinglet.fieldCreater = function() {
+  return new Completer('mdc', 'Topic', '50%',
+                       function() { return hoplax.autocompletes.mdc; },
+                       ['URL', 'Topic'], ['url', 'topic'],
+                       [1, 10]);
+};
+
+mdcSlinglet.dependencies = 'lib/mdc.js';
 
 ////////////////////////////////////////////////////////////////////////////////
 // builtin bookmarks
@@ -46,5 +65,8 @@ hoplax.bookmarks.push(
     url: "http://maps.google.com/maps?daddr=${To:2:40%}&saddr=${From:1:40%}" },
   { name: "Google Images", url: "http://images.google.com/images?q=%s" },
   { name: "Hoogle", url: "http://www.haskell.org/hoogle/?hoogle=%s" },
+  { name: "Mozilla Javascript Reference",
+    url: "https://developer.mozilla.org/en/JavaScript/Reference/%s",
+    slinglet: mdcSlinglet },
   null // for your convenience, so can have the trailing commas in every line
 );
