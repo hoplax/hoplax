@@ -17,7 +17,7 @@
  */
 
 ////////////////////////////////////////////////////////////////////////////////
-// Google Maps
+// Google Maps, autocompletion example
 hoplax.autocompletes.maps = hoplax.autocompletes.maps || [];
 
 var mapsSlinglet = new Slinglet();
@@ -37,32 +37,12 @@ mapsSlinglet.fieldCreater = function() {
 mapsSlinglet.dependencies = 'lib/mapsdb.js';
 
 ////////////////////////////////////////////////////////////////////////////////
-// imdb
-
-var imdbSlinglet = new Slinglet();
-
-imdbSlinglet.handlerFn = function(searchstring) {
-  var url = "http://www.imdb.com/";
-  if (searchstring) url += "find?q="+searchstring;
-  window.location = url;
-};
-
-imdbSlinglet.fieldCreater = function() {
-  return new InputBox("imdbsearch", "Search IMDb", "50%");
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// Fun fact about haskell, demonstrating the function() handling ability
-// of the Bookmark class
-
-var haskellFunction = function () { alert("Haskell is a scripting language inspired by Python."); };
-
-////////////////////////////////////////////////////////////////////////////////
 // builtin bookmarks
 
 hoplax.bookmarks.push(
-  { name: "IMDb", url: "http://www.imdb.com/find?q=%s", slinglet: imdbSlinglet },
+  { name: "IMDb", url: "http://www.imdb.com/find?q=%s" },
   { name: "Google Maps", url: "http://maps.google.com/maps?q=%s", slinglet: mapsSlinglet },
-  { name: "haskell", url: 'javascript:alert(info)', slinglet: haskellFunction },
+  { name: "Google Images", url: "http://images.google.com/images?q=%s" },
+  { name: "Hoogle", url: "http://www.haskell.org/hoogle/?hoogle=%s" },
   null // for your convenience, so can have the trailing commas in every line
 );
