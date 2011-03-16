@@ -72,6 +72,14 @@ table tr.selected {
     position: relative;
 }
 
+#completiontable tr.clickable {
+    cursor: pointer;
+}
+
+#completiontable tr.clickable:hover {
+    color: #0000ff;
+}
+
 .help {
     margin-left: 20px;
     margin-right: 20px;
