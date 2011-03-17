@@ -17,7 +17,7 @@
  */
 
 ////////////////////////////////////////////////////////////////////////////////
-// Google Maps
+// Google Maps, autocompletion example
 hoplax.autocompletes.maps = hoplax.autocompletes.maps || [];
 
 var mapsSlinglet = new Slinglet();
@@ -29,7 +29,7 @@ mapsSlinglet.handlerFn = function(searchstring) {
 };
 
 mapsSlinglet.fieldCreater = function() {
-  return new Completer('mapssearch', 'Search Google Maps', '50%',
+  return new Completer('mapssearch', 'Location', '50%',
                        function() { return hoplax.autocompletes.maps; },
                        ['Countries'], ['n']);
 };
@@ -37,32 +37,36 @@ mapsSlinglet.fieldCreater = function() {
 mapsSlinglet.dependencies = 'lib/mapsdb.js';
 
 ////////////////////////////////////////////////////////////////////////////////
-// imdb
+// JavaScript reference
+hoplax.autocompletes.mdc = hoplax.autocompletes.mdc || [];
 
-var imdbSlinglet = new Slinglet();
+var mdcSlinglet = new Slinglet();
 
-imdbSlinglet.handlerFn = function(searchstring) {
-  var url = "http://www.imdb.com/";
-  if (searchstring) url += "find?q="+searchstring;
+mdcSlinglet.handlerFn = function(url) {
   window.location = url;
 };
 
-imdbSlinglet.fieldCreater = function() {
-  return new InputBox("imdbsearch", "Search IMDb", "50%");
+mdcSlinglet.fieldCreater = function() {
+  return new Completer('mdc', 'Topic', '50%',
+                       function() { return hoplax.autocompletes.mdc; },
+                       ['URL', 'Topic'], ['url', 'topic'],
+                       [1, 10]);
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// Fun fact about haskell, demonstrating the function() handling ability
-// of the Bookmark class
-
-var haskellFunction = function () { alert("Haskell is a scripting language inspired by Python."); };
+mdcSlinglet.dependencies = 'lib/mdc.js';
 
 ////////////////////////////////////////////////////////////////////////////////
 // builtin bookmarks
 
 hoplax.bookmarks.push(
-  { name: "IMDb", url: "http://www.imdb.com/find?q=%s", slinglet: imdbSlinglet },
+  { name: "IMDb", url: "http://www.imdb.com/find?q=%s" },
   { name: "Google Maps", url: "http://maps.google.com/maps?q=%s", slinglet: mapsSlinglet },
-  { name: "haskell", url: 'javascript:alert(info)', slinglet: haskellFunction },
+  { name: "Google Maps Directions",
+    url: "http://maps.google.com/maps?daddr=${To:2:40%}&saddr=${From:1:40%}" },
+  { name: "Google Images", url: "http://images.google.com/images?q=%s" },
+  { name: "Hoogle", url: "http://www.haskell.org/hoogle/?hoogle=%s" },
+  { name: "Mozilla Javascript Reference",
+    url: "https://developer.mozilla.org/en/JavaScript/Reference/%s",
+    slinglet: mdcSlinglet },
   null // for your convenience, so can have the trailing commas in every line
 );
