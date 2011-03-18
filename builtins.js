@@ -60,13 +60,18 @@ mdcSlinglet.dependencies = 'lib/mdc.js';
 
 hoplax.bookmarks.push(
   { name: "IMDb", url: "http://www.imdb.com/find?q=%s" },
-  { name: "Google Maps", url: "http://maps.google.com/maps?q=%s", slinglet: mapsSlinglet },
+  { name: "Google Maps", url: "http://maps.google.com/maps?q=%s",
+    slinglet: mapsSlinglet,
+    keyword: 'gm' },
   { name: "Google Maps Directions",
     url: "http://maps.google.com/maps?daddr=${To:2:40%}&saddr=${From:1:40%}" },
-  { name: "Google Images", url: "http://images.google.com/images?q=%s" },
-  { name: "Hoogle", url: "http://www.haskell.org/hoogle/?hoogle=%s" },
+  { name: "Google Images", url: "http://images.google.com/images?q=%s",
+    keyword: 'gi' },
+  { name: "Hoogle", url: "http://www.haskell.org/hoogle/?hoogle=%s",
+    keyword: 'h' },
   { name: "Mozilla Javascript Reference",
     url: "https://developer.mozilla.org/en/JavaScript/Reference/%s",
-    slinglet: mdcSlinglet },
+    slinglet: mdcSlinglet,
+    keyword: 'js' },
   null // for your convenience, so can have the trailing commas in every line
 );
