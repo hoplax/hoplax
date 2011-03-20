@@ -18,17 +18,13 @@
 
 body {
     font-family: "arial";
-    margin: 20px;
     overflow: hidden;
 }
 
-div#main {
-    margin-left: 21%;
-}
-
-div#leftcol {
-    float: left;
-    width: 21%
+div#inputfields, div#leftcol, div#completion, div#first-start { 
+    position: absolute;
+    margin: 0;
+    padding: 0;
 }
 
 img#logo {
@@ -36,14 +32,8 @@ img#logo {
     border: none;
 }
 
-div#header {
-    overflow: hidden;
-    padding-top: 20px;
-}
-
 div#completion {
     overflow: auto;
-    position: relative;
 }
 
 div#completion table {
@@ -94,16 +84,12 @@ div#completion ul.help {
     list-style-type: square;
 }
 
-div#header form#inputfields input {
+div#inputfields input {
     margin-right: 20px;
-    margin-bottom: 25px;
-    font-size: 14px;
+    margin-bottom: 10px;
+    font-size: 100%;
 }
 
-div#header form#inputfields input:focus {
+div#inputfields input:focus {
     background-color: lightyellow;
-}
-
-div#header form#inputfields > input {
-    width: 99%;
 }
