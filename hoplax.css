@@ -22,26 +22,31 @@ body {
     overflow: hidden;
 }
 
-#main {
+div#main {
     margin-left: 21%;
 }
 
-#leftcol {
+div#leftcol {
     float: left;
     width: 21%
 }
 
-#logo {
+img#logo {
     width: 100%;
     border: none;
 }
 
-#header {
+div#header {
     overflow: hidden;
     padding-top: 20px;
 }
 
-table {
+div#completion {
+    overflow: auto;
+    position: relative;
+}
+
+div#completion table {
     border-width: 3px;
     border-style: outset;
     border-color: #bbffbb;
@@ -49,68 +54,56 @@ table {
     width: 100%;
 }
 
-table th {
+div#completion table th {
     border-width: 2px;
     padding: 6px;
     border-style: outset;
     border-color: #ddddff;
 }
 
-table td {
+div#completion table td {
     border-width: 2px;
     padding: 3px;
     border-style: outset;
     border-color: #ddddff;
 }
 
-table tr.selected {
+div#completion table tr.selected {
     background: #ddddff;
 }
 
-#completiontable {
-    overflow: auto;
-    position: relative;
-}
-
-#completiontable tr.clickable {
+div#completion table tr.clickable {
     cursor: pointer;
 }
 
-#completiontable tr.clickable:hover {
+div#completion table tr.clickable:hover {
     color: #0000ff;
 }
 
-.help {
+div#completion .help {
     margin-left: 20px;
     margin-right: 20px;
 }
 
-h2, h1 {
+div#completion h2.help, h1.help {
     font-variant:small-caps;
     color: #31792D;
 }
 
-ul {
+div#completion ul.help {
     list-style-type: square;
 }
 
-input {
+div#header form#inputfields input {
+    margin-right: 20px;
     margin-bottom: 25px;
     font-size: 14px;
 }
 
-input:focus {
+div#header form#inputfields input:focus {
     background-color: lightyellow;
 }
 
-#inputfields > input {
+div#header form#inputfields > input {
     width: 99%;
-}
-
-#inputfields span {
-    padding-right: 20px;
-}
-
-#last-modified p {
-    display: none;
 }
