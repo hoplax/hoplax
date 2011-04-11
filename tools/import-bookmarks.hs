@@ -46,7 +46,7 @@ utcFormat = strftime "%Y-%m-%d %H:%M:%S"
 
 data Bookmark = Bookmark { bUrl :: String,
                            bName :: String, -- aka title in ff json
-                           bDescription :: Maybe String, -- bookmarkPropertoes/description in ff json
+                           bDescription :: Maybe String, -- bookmarkProperties/description in ff json
                            bShortcut :: Maybe String,
                            bDate :: Maybe UTCTime,
                            bTags :: [String],
@@ -93,7 +93,7 @@ blacklist bmark =
 --     let dts = partitions (~== "<DT>") $ parseTags str
 --     in sort $ mapMaybe handleDT dts
 
-handleBookmarks = undefined
+handleBookmarks = error "HTML bookmark input needs love"
 
 ------------------------------------------- bookmarks.json
 -- Our beloved firefox (from version 3.5 (including) -> 4.0
@@ -173,18 +173,18 @@ tagMerge (Just tags) (Just bmarks) = Just $ map addTags bmarks
 
 jEscape = Text.HJson.toString . JString
 
-jMEscape m = Text.HJson.toString $ maybe JNull JString m
+jMEscape prefix = maybe "" ((prefix ++) . Text.HJson.toString . JString)
+
+jLEscape = Text.HJson.toString . JArray . map JString
 
 printBMark b =
-    putStr $
-                 "  new Bookmark(" ++
-                 jEscape("[" ++ intercalate "][" (bTags b) ++
-                         "][" ++ bPath b ++ "] " ++
-                         bName b) ++ ", " ++
-                 jEscape(bUrl b) ++ ", " ++
-                 jMEscape(bShortcut b) ++ ", " ++
-                 jMEscape(bDescription b) ++ ", " ++
-                 jMEscape(fmap utcFormat $ bDate b) ++ ")"
+    putStr $ "  { name: " ++ (jEscape $ bName b) ++
+             ", url: " ++ (jEscape $ bUrl b) ++
+             ", tags: " ++ (jLEscape $ bTags b) ++
+             ", path: " ++ (jEscape $ bPath b) ++
+             jMEscape ", keyword: " (bShortcut b) ++
+             jMEscape ", date: " (fmap utcFormat $ bDate b) ++
+             jMEscape ", description: " (bDescription b) ++ " }"
 
 main = do str <- getContents
           -- handleJSON str
@@ -195,6 +195,6 @@ main = do str <- getContents
           let urlTags = groupFst $ sort tagmap
           let taggedBookmarks = concat $ merge tagMerge urlTags filtBookmarks
           -- mapM_ print taggedBookmarks
-          putStrLn "bookmark_completer.dataset = bookmark_completer.dataset.concat(["
+          putStrLn "hoplax.bookmarks.push("
           sequence $ intersperse (putStrLn ",") $ map printBMark taggedBookmarks
-          putStrLn "\n]);"
+          putStrLn "\n);"
