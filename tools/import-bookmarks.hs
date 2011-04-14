@@ -16,13 +16,17 @@
 --
 -- Author: errge@google.com
 
--- TODO(errge): convert bookmarks with shortcuts and %s to Form(...)
--- TODO(errge): restore support for .html import (test with Chrome!)
+-- Usage: import-bookmarks.hs < bookmarks.html
+-- Usage: import-bookmarks.hs < bookmarks.json
 
-{-# LANGUAGE NoMonomorphismRestriction #-}
+-- It works with chrome/firefox html bookmark exports and firefox json
+-- bookmark backup.  With Firefox you should stick with the json
+-- backup, because this is the only way to keep your tags.
+
+{-# LANGUAGE NoMonomorphismRestriction, FlexibleContexts #-}
 
 import System (getArgs)
--- import Text.HTML.TagSoup
+import Text.HTML.TagSoup
 import Control.Monad
 import Data.Function
 import Data.Time.Format
@@ -31,11 +35,13 @@ import System.Locale
 import Data.Maybe
 import Data.Either
 import Data.List
+import Data.Char
 import Text.HJson
-import Text.HJson.Query
+import Text.HJson.Query hiding (when)
 import Debug.Trace
 import Text.HJson.Pretty
 import qualified Data.Map as Map
+import MonadLib
 
 strftime = formatTime defaultTimeLocale
 strptime = readTime defaultTimeLocale
@@ -71,29 +77,65 @@ blacklist bmark =
        return bmark
 
 ------------------------------------------- bookmarks.html
--- handleDT soup =
---     let tagA = soup !! 1
---         tagText = soup !! 2
---     in do _ <- Just () -- force maybe monad
---           TagOpen "A" attribs <- return tagA
---           TagText text <- return tagText
---           url <- lookup "HREF" attribs
---           let date = (mplus `on` (`lookup` attribs)) "LAST_MODIFIED" "ADD_DATE"
---           blacklist Bookmark {
---                           bName = text,
---                           bDescription = "", -- TODO(klao): get description of bookmarks
---                           bUrl = url,
---                           bShortcut = fromMaybe "" $ lookup "SHORTCUTURL" attribs,
---                           bDate = unixToUTC $ fromMaybe "0" date,
---                           bTags = [],
---                           bPaths = [] -- TODO(klao): get path from HTML
---                         }
+-- state: current path (bookmarks can be in folders recursively)
+-- choice: because some <DT>'s are not bookmarks
 
--- handleBookmarks str =
---     let dts = partitions (~== "<DT>") $ parseTags str
---     in sort $ mapMaybe handleDT dts
+handleDT :: StateM m [String] => [Tag String] -> ChoiceT m Bookmark
+handleDT soup =
+    case soup !! 0 of
+      TagOpen "DT" _ -> case soup !! 1 of
+                          TagOpen "A" _ -> handleDTBookmark soup
+                          TagOpen "H3" _ -> handleDTFolder soup
+                          _ -> mzero
+      TagClose "DL" -> do sets_ tail
+                          mzero
 
-handleBookmarks = error "HTML bookmark input needs love"
+handleDTFolder :: StateM m [String] => [Tag String] -> ChoiceT m Bookmark
+handleDTFolder soup =
+    let TagText fname = soup !! 2
+    in do sets_ (fname:)
+          mzero
+
+mc :: Monad m => Maybe a -> ChoiceT m a
+mc Nothing = mzero
+mc (Just x) = return x
+
+mlookup k l = mc $ lookup k l
+
+delTrailingWS = reverse . dropWhile isSpace . reverse
+
+handleDTBookmark :: StateM m [String] => [Tag [Char]] -> ChoiceT m Bookmark
+handleDTBookmark soup =
+    let TagOpen "A" attribs = soup !! 1
+        TagText text = soup !! 2
+    in do url <- mlookup "HREF" attribs
+          let date = (mplus `on` (`lookup` attribs)) "LAST_MODIFIED" "ADD_DATE"
+          let description = do guard $ length soup >= 7
+                               TagOpen "DD" [] <- return $ soup !! 5
+                               TagText text <- return $ soup !! 6
+                               return $ delTrailingWS text
+          path <- fmap (intercalate " -> " . reverse) get
+          mc $ blacklist Bookmark {
+                   bName = text,
+                   bDescription = description,
+                   bUrl = url,
+                   bShortcut = lookup "SHORTCUTURL" attribs,
+                   bDate = fmap unixToUTC date,
+                   bTags = [],
+                   bPath = path
+                 }
+
+mapMaybeM f (x:xs) = do mb <- findOne $ f x
+                        put $ maybeToList mb
+                        mapMaybeM f xs
+mapMaybeM _ [] = return ()
+
+-- mapMaybeM s f (x:xs) = case runStateT s (f x) of
+--                          Just (Nothing, s') -> undefined -- mapMaybeM s' f xs
+
+handleBookmarks str =
+    let dts = partitions (\x -> x ~== "<DT>" || x ~== "</DL>") $ parseTags str
+    in sort $ snd $ runId $ runWriterT $ runStateT [] $ mapMaybeM handleDT dts
 
 ------------------------------------------- bookmarks.json
 -- Our beloved firefox (from version 3.5 (including) -> 4.0
@@ -127,13 +169,14 @@ traverseJSON path jobj@(JObject obj) =
                            in [Right Bookmark {
                                            bName = title,
                                            bUrl = url,
-                                           bDescription = fmap (\(JString x) -> x) $
-                                                          listToMaybe $
-                                                          (getFromKeys ["annos"] >>>
-                                                           getFromArr >>>
-                                                           guards (getFromKeys ["name"] >>>
-                                                                   isStrBy (=="bookmarkProperties/description"))
-                                                                  (getFromKeys ["value"]))
+                                           bDescription =
+                                               fmap (\(JString x) -> delTrailingWS x) $
+                                               listToMaybe $
+                                                               (getFromKeys ["annos"] >>>
+                                                                getFromArr >>>
+                                                                guards (getFromKeys ["name"] >>>
+                                                                        isStrBy (=="bookmarkProperties/description"))
+                                                                           (getFromKeys ["value"]))
                                                           jobj,
                                            bShortcut = shortcut,
                                            bDate = date,
@@ -169,7 +212,7 @@ tagMerge _ Nothing = Nothing
 tagMerge Nothing bookmarks = bookmarks
 tagMerge (Just tags) (Just bmarks) = Just $ map addTags bmarks
     where
-      addTags bmark = bmark { bTags = tags }
+      addTags bmark = bmark { bTags = [] } -- tags }
 
 jEscape = Text.HJson.toString . JString
 
@@ -187,14 +230,13 @@ printBMark b =
              jMEscape ", description: " (bDescription b) ++ " }"
 
 main = do str <- getContents
-          -- handleJSON str
-          let (tagmap, bookmarks) = case head str of
-                                      '{' -> handleJSON str
-                                      _ -> handleBookmarks str
-          let filtBookmarks = groupFst $ map (\x -> (bUrl x, x)) $ sort $ bookmarks >>= blacklist
-          let urlTags = groupFst $ sort tagmap
-          let taggedBookmarks = concat $ merge tagMerge urlTags filtBookmarks
-          -- mapM_ print taggedBookmarks
+          let taggedBookmarks =
+                  case head str of
+                    '{' -> let (tagmap, bookmarks) = handleJSON str
+                               filtBookmarks = groupFst $ map (\x -> (bUrl x, x)) $ sort $ bookmarks >>= blacklist
+                               urlTags = groupFst $ sort tagmap
+                           in concat $ merge tagMerge urlTags filtBookmarks
+                    _ -> handleBookmarks str
           putStrLn "hoplax.bookmarks.push("
           sequence $ intersperse (putStrLn ",") $ map printBMark taggedBookmarks
           putStrLn "\n);"
