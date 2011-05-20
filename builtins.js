@@ -56,6 +56,30 @@ mdcSlinglet.fieldCreater = function() {
 mdcSlinglet.dependencies = 'lib/mdc.js';
 
 ////////////////////////////////////////////////////////////////////////////////
+// Gmail Label
+
+hoplax.autocompletes.gmailLabel = hoplax.autocompletes.gmailLabel ||
+    [{'l': 'inbox'},
+     {'l': 'buzz'}];
+
+var gmailLabelSlinglet = new Slinglet();
+
+gmailLabelSlinglet.handlerFn = function(label) {
+  label = encodeURIComponent(label);
+  if (label != 'buzz' && label != 'inbox')
+    label = 'label/' + label;
+  window.location = 'https://mail.google.com/mail/?shva=1#' + label;
+};
+
+gmailLabelSlinglet.fieldCreater = function() {
+  var comp = new Completer('gmaillabel', 'Label', '50%',
+                           function() { return hoplax.autocompletes.gmailLabel; },
+                           ['Label'], ['l']);
+  comp.emptyText = '';
+  return comp;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // builtin bookmarks
 
 hoplax.bookmarks.push(
@@ -73,5 +97,14 @@ hoplax.bookmarks.push(
     url: "https://developer.mozilla.org/en/JavaScript/Reference/%s",
     slinglet: mdcSlinglet,
     keyword: 'js' },
+  { name: "GMail search",
+    url: "https://mail.google.com/mail/?shva=1#search/${Search:1:90%}",
+    keyword: 'gms'
+  },
+  { name: "Gmail label",
+    url: "https://mail.google.com/mail/?shva=1#label/%s",
+    slinglet: gmailLabelSlinglet,
+    keyword: 'gml'
+  },
   null // for your convenience, so can have the trailing commas in every line
 );
