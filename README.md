@@ -16,6 +16,6 @@ You are welcomed to join our [Google groups](https://groups.google.com/group/hop
 
 Authors
 -------
-* Gergely Risko, errge@google.com
+* Gergely Risko, gergely@risko.hu
 * Mihaly Barasz, klao@google.com
 * Eva Szadeczky-Kardoss, napszel@gmail.com

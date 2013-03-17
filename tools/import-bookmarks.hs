@@ -14,7 +14,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
--- Author: errge@google.com
+-- Author: gergely@risko.hu
 
 -- Usage: import-bookmarks.hs < bookmarks.html
 -- Usage: import-bookmarks.hs < bookmarks.json
