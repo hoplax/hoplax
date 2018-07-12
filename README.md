@@ -18,4 +18,4 @@ Authors
 -------
 * Gergely Risko, gergely@risko.hu
 * Mihaly Barasz, klao@google.com
-* Eva Szadeczky-Kardoss, napszel@gmail.com
+* Eva Szadeczky-Kardoss, eva@napszel.com
