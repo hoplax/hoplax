@@ -5,7 +5,7 @@ Getting started
 ---------------
 Checkout our [screencast](http://www.youtube.com/watch?v=AfLciXAt2lM)!
 
-Checkout the [online demo](http://hoplax.github.com/)!
+Checkout the [online demo](http://hoplax.github.io/)!
 
 
 Getting help
